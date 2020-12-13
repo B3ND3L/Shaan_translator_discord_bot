@@ -23,7 +23,7 @@ client.on("message", function(message) {
     }
 })
 
-client.login("Nzg3NjM2MDI5NTQ3ODcyMjg2.X9X1Nw.WAFLvG2NxbVT05GUyUHhWL8uhlg");
+client.login("<<<<TOKEN>>>>");
 
 
 function translate(message, race, texte){
