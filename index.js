@@ -18,7 +18,7 @@ client.on("message", function(message) {
         if(args.length != 2){
             message.reply(':warning: Pour traduire un texte, fais : "!translate langue <texte à traduire>"')
         } else {
-            return translate(message,args[0], clearSpace(args[1]))
+            return translate(message,args[0], args[1])
         }
     }
 })
@@ -28,14 +28,17 @@ client.login("Nzg3NjM2MDI5NTQ3ODcyMjg2.X9X1Nw.WAFLvG2NxbVT05GUyUHhWL8uhlg");
 
 function translate(message, race, texte){
 
+    const clearedTexte = clearSpace(texte)
+
     if(assertRace(message, race)){
             
-        translateIntoImage(race, texte)
+        translateIntoImage(race, clearedTexte)
         
         setTimeout(function() {
-            console.log("./assets/traductions/" + race + "_" + texte + ".jpg")
-            const attachment = new Discord.MessageAttachment("./assets/traductions/" + race + "_" + texte + ".jpg");
-            message.channel.send(texte + ": \n", attachment);
+            console.log("./assets/traductions/" + race + "_" + clearedTexte + ".jpg")
+            const attachment = new Discord.MessageAttachment("./assets/traductions/" + race + "_" + clearedTexte + ".jpg");
+            message.delete()
+            message.reply(texte + ": \n", attachment);
         },1000);
     }
 }
@@ -90,8 +93,10 @@ function clearSpace(texte){
 
 function assertRace(message, race){
 
-    if ( ! ["boreals"].includes(race) ){
-        message.reply("Je ne connais pas encore cette langue, peut être pourrais tu m'apprendre ?")
+    const races = ["boreals"]
+
+    if ( ! races.includes(race) ){
+        message.reply("Je ne connais que : \n  [" + races.join(",") + "] \nPeut être pourrais tu m'apprendre ?")
         return false
     }
 
