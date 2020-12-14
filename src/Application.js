@@ -1,15 +1,26 @@
+const TokenReader = require('./TokenReader.js');
+const read =  require('jimp');
 const Discord = require('discord.js');
-const client = new Discord.Client();
-var jimp = require('jimp');
+
+const Client = new Discord.Client()
+const MessageAttachment = new Discord.MessageAttachment()
+const tokenReader = new TokenReader()
+
 const PREFIX = "!translate "
 
+tokenReader.loadToken().then((token)=>{
+    Client.login(token);
+}).catch(()=>{
+    console.log('token not found');
+    process.exit(2);
+});
 
 //Toutes les actions à faire quand le bot se connecte
-client.on("ready", function () {
+Client.on("ready", function () {
     console.log("Mon BOT est Connecté");
 })
 
-client.on("message", function(message) {
+Client.on("message", function(message) {
     
     if(message.content.startsWith(PREFIX)) {
         const commandBody = message.content.slice(PREFIX.length);
@@ -23,9 +34,6 @@ client.on("message", function(message) {
     }
 })
 
-client.login("<<<<TOKEN>>>>");
-
-
 function translate(message, race, texte){
 
     const clearedTexte = clearSpace(texte)
@@ -36,7 +44,7 @@ function translate(message, race, texte){
         
         setTimeout(function() {
             console.log("./assets/traductions/" + race + "_" + clearedTexte + ".jpg")
-            const attachment = new Discord.MessageAttachment("./assets/traductions/" + race + "_" + clearedTexte + ".jpg");
+            const attachment = new MessageAttachment("./assets/traductions/" + race + "_" + clearedTexte + ".jpg");
             message.delete()
             message.reply(texte + ": \n", attachment);
         },1000);
@@ -53,9 +61,9 @@ function translateIntoImage(race, texte){
 
         let jimps = []
 
-        jimps.push(jimp.read(PATH_TO_LETTERS_IMAGES + "+.png"))
+        jimps.push(read(PATH_TO_LETTERS_IMAGES + "+.png"))
         for (var i = 0; i < LETTERS.length; i++){
-            jimps.push(jimp.read(PATH_TO_LETTERS_IMAGES + race + "/"  + LETTERS[i] + ".png"))
+            jimps.push(read(PATH_TO_LETTERS_IMAGES + race + "/"  + LETTERS[i] + ".png"))
         }
         
         Promise.all(jimps).then(function(data) {
