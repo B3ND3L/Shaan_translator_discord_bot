@@ -36,7 +36,7 @@ Client.on("message", function(message) {
 
 function translate(message, race, texte){
 
-    const clearedTexte = clearSpace(texte)
+    const clearedTexte = sanitizeTexte(texte)
 
     if(assertRace(message, race)){
             
@@ -95,8 +95,8 @@ function getSanitizeArrayByString(texte){
     return texte.split('')
 }
 
-function clearSpace(texte){
-    return texte.replace(/ /gi, "_")
+function sanitizeTexte(texte){
+    return texte.toLowerCase().replace(/ /gi, "_").replace(/![a-z]/gi, '')
 }
 
 function assertRace(message, race){
