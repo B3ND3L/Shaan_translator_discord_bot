@@ -1,6 +1,7 @@
 const TokenReader = require('./TokenReader.js');
 const read =  require('jimp');
 const Discord = require('discord.js');
+const Canvas = require('canvas');
 
 const Client = new Discord.Client()
 const MessageAttachment = new Discord.MessageAttachment()
@@ -8,17 +9,27 @@ const tokenReader = new TokenReader()
 
 const PREFIX = "!translate "
 
+const boreal =        new Canvas.registerFont('./assets/fonts/LangueBoreal-Regular.ttf',      {family: "boreal"});
+const darken =        new Canvas.registerFont('./assets/fonts/LangueDarken-Regular.ttf',      {family: "darken"});
+const delhion =       new Canvas.registerFont('./assets/fonts/LangueDelhion-Regular.ttf',     {family: "delhion"});
+const feling =        new Canvas.registerFont('./assets/fonts/LangueFeling-Regular.ttf',      {family: "feling"});
+const humain =        new Canvas.registerFont('./assets/fonts/LangueHumain-Regular.ttf',      {family: "humain"});
+const kelwin =        new Canvas.registerFont('./assets/fonts/LangueKelwin-Regular.ttf',      {family: "kelwin"});
+const melodienne =    new Canvas.registerFont('./assets/fonts/LangueMelodienne-Regular.ttf',  {family: "melodienne"});
+const woon =          new Canvas.registerFont('./assets/fonts/LangueWoon-Regular.ttf',        {family: "woon"});
+const ygwan =         new Canvas.registerFont('./assets/fonts/LangueYgwan-Regular.ttf',       {family: "ygwan"});
+const ygwan_ancien =  new Canvas.registerFont('./assets/fonts/LangueYgwanAncien-Regular.ttf', {family: "ygwan_ancien"});
+
+Client.on("ready", function () {
+    console.log("Mon BOT est Connecté");
+})
+
 tokenReader.loadToken().then((token)=>{
     Client.login(token);
 }).catch(()=>{
     console.log('token not found');
     process.exit(2);
 });
-
-//Toutes les actions à faire quand le bot se connecte
-Client.on("ready", function () {
-    console.log("Mon BOT est Connecté");
-})
 
 Client.on("message", function(message) {
     
@@ -36,72 +47,28 @@ Client.on("message", function(message) {
 
 function translate(message, race, texte){
 
-    const clearedTexte = sanitizeTexte(texte)
-
     if(assertRace(message, race)){
-            
-        translateIntoImage(race, clearedTexte)
-        
-        setTimeout(function() {
-            console.log("./assets/traductions/" + race + "_" + clearedTexte + ".jpg")
-            const attachment = new MessageAttachment("./assets/traductions/" + race + "_" + clearedTexte + ".jpg");
-            message.delete()
-            message.reply(texte + ": \n", attachment);
-        },1000);
+        message.delete()
+        message.reply(texte + ": \n", translateIntoImage(race, texte));
     }
 }
 
-
 function translateIntoImage(race, texte){
-    return new Promise((callback) => {
-        const PATH_TO_LETTERS_IMAGES = "assets/images/"
-        const LETTERS = getSanitizeArrayByString(texte)
 
-        console.log(LETTERS)
-
-        let jimps = []
-
-        jimps.push(read(PATH_TO_LETTERS_IMAGES + "+.png"))
-        for (var i = 0; i < LETTERS.length; i++){
-            jimps.push(read(PATH_TO_LETTERS_IMAGES + race + "/"  + LETTERS[i] + ".png"))
-        }
-        
-        Promise.all(jimps).then(function(data) {
-            return Promise.all(jimps)
-        }).then(async function(data){
-
-
-            const totalWidth = data.reduce(function (acc, data){
-                return acc + data.bitmap.width
-            }, 0)
-
-            data[0].resize(totalWidth, data[1].bitmap.height)
-
-            data[0].composite(data[1], 0, 0) 
-
-            var pixel_offset = data[1].bitmap.width
-
-            for(var y=2; y < data.length; y++){
-                data[0].composite(data[y], pixel_offset, 0) 
-                pixel_offset += data[y].bitmap.width
-            }
-            
-            data[0].write("assets/traductions/" + race + "_" + texte + ".jpg")
-        })
-    })
-}
-
-function getSanitizeArrayByString(texte){
-    return texte.split('')
-}
-
-function sanitizeTexte(texte){
-    return texte.toLowerCase().replace(/ /gi, "_").replace(/![a-z]/gi, '')
+    const width = texte.length * 80;
+    const canvas = Canvas.createCanvas(width, 150);
+    const ctx = canvas.getContext('2d');
+    
+    ctx.font = '60px ' + race;    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(texte.toUpperCase(), 10, canvas.height / 1.8);
+    
+    return new Discord.MessageAttachment(canvas.toBuffer(), texte + '.png');
 }
 
 function assertRace(message, race){
 
-    const races = ["boreals"]
+    const races = ["boreal", "darken", "delhion", "feling", "humain", "kelwin", "melodienne", "woon", "ygwan", "ygwan_ancien"]
 
     if ( ! races.includes(race) ){
         message.reply("Je ne connais que : \n  [" + races.join(",") + "] \nPeut être pourrais tu m'apprendre ?")
