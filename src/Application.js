@@ -34,12 +34,13 @@ Client.on("message", function(message) {
     }
 })
 
-function process(message, race, texte){
+function process(message, race, text){
 
     if(assertRace(message, race)){
         message.delete()
-        const attachement = new Discord.MessageAttachment(languageProvider.translate(race, texte), texte + '.png')
-        message.reply(texte + ": \n", attachement);
+        const attachement = new Discord.MessageAttachment(languageProvider.translate(race, text), text + '.png')
+        const message_text = (race == "humain")? "```diff\nLa langue Humain n'est pas encore stable!\n```" : text
+        message.reply(message_text + "\n", attachement);
     }
 }
 
