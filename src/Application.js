@@ -21,11 +21,12 @@ tokenReader.loadToken().then((token)=>{
 });
 
 Client.on("message", function(message) {
-    
+
     if(message.content.startsWith(PREFIX)) {
-        const commandBody = message.content.slice(PREFIX.length);
+
+	const commandBody = message.content.slice(PREFIX.length);
         const args = commandBody.replace(/ /,'&').split('&');
-        
+
         if(args.length != 2){
             message.reply(':warning: Pour traduire un texte, fais : "!translate langue <texte à traduire>"')
         } else {
@@ -41,6 +42,9 @@ function process(message, race, text){
         const attachement = new Discord.MessageAttachment(languageProvider.translate(race, text), text + '.png')
         const message_text = (race == "humain")? "```diff\nLa langue Humain n'est pas encore stable!\n```" : text
         message.reply(message_text + "\n", attachement);
+	delete attachement;
+	delete message_text;
+	delete message;
     }
 }
 
